@@ -1,0 +1,8 @@
+{
+  "name": "Remix VEX Robotics Inventory Control",
+  "description": "Customizable VEX Robotics inventory management template with instant checkout tracking, team allocations, school customizer, and competition pack lists.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

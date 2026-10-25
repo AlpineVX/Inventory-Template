@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Gracefully silence benign Vite HMR WebSocket errors in iframe preview
+      window.addEventListener('error', function (e) {
+        if (e && (e.message?.includes('WebSocket') || String(e.error)?.includes('WebSocket'))) {
+          e.stopImmediatePropagation();
+          e.preventDefault();
+        }
+      });
+      window.addEventListener('unhandledrejection', function (e) {
+        if (e && (String(e.reason)?.includes('WebSocket') || e.reason?.message?.includes('WebSocket'))) {
+          e.stopImmediatePropagation();
+          e.preventDefault();
+        }
+      });
+    </script>
+    <title>VEX Robotics Inventory Control</title>
+    <meta name="description" content="Customizable VEX Robotics inventory management template with instant checkout tracking, team allocations, school customizer, and competition pack lists." />
+    <meta property="og:title" content="VEX Robotics Inventory Control" />
+    <meta property="og:description" content="Customizable VEX Robotics inventory management template with instant checkout tracking, team allocations, school customizer, and competition pack lists." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-zinc-950 text-zinc-100 antialiased selection:bg-indigo-500/20 selection:text-indigo-200">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
