@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   X,
   School,
@@ -18,8 +18,11 @@ import {
   Globe,
   Database,
   ArrowRight,
+  KeyRound,
+  Mail,
+  Boxes,
 } from 'lucide-react';
-import { ClubProfile, DEFAULT_CLUB_PROFILE, InventoryItem, AuditLog } from '../types';
+import { ClubProfile, DEFAULT_CLUB_PROFILE, InventoryItem, AuditLog, AdminSettings } from '../types';
 
 interface SchoolCustomizerModalProps {
   isOpen: boolean;
@@ -28,7 +31,10 @@ interface SchoolCustomizerModalProps {
   onUpdateClubProfile: (profile: ClubProfile) => void;
   items: InventoryItem[];
   logs: AuditLog[];
-  onImportFullBackup: (data: { profile?: ClubProfile; items?: InventoryItem[]; logs?: AuditLog[] }) => void;
+  adminSettings: AdminSettings;
+  onUpdateAdminSettings: (settings: AdminSettings) => void;
+  onResetAllItemsToAvailable: () => void;
+  onImportFullBackup: (data: { profile?: ClubProfile; adminSettings?: AdminSettings; items?: InventoryItem[]; logs?: AuditLog[] }) => void;
   onResetToTemplate: (presetKey: 'lake_travis' | 'generic' | 'fresh_starter') => void;
   onAddToast: (type: 'success' | 'error' | 'info', title: string, message?: string) => void;
 }
@@ -54,8 +60,8 @@ const PRESET_SCHOOLS: {
   {
     key: 'fresh_starter',
     title: 'Clean Blank Slate',
-    number: '0000',
-    desc: 'Start fresh for your own team with empty checkout states.',
+    number: '101',
+    desc: 'Start fresh for your own team with all 279 parts marked Available in storage.',
   },
 ];
 
@@ -66,21 +72,34 @@ export const SchoolCustomizerModal: React.FC<SchoolCustomizerModalProps> = ({
   onUpdateClubProfile,
   items,
   logs,
+  adminSettings,
+  onUpdateAdminSettings,
+  onResetAllItemsToAvailable,
   onImportFullBackup,
   onResetToTemplate,
   onAddToast,
 }) => {
   const [activeTab, setActiveTab] = useState<'customize' | 'clone_guide' | 'backup'>('customize');
   const [formProfile, setFormProfile] = useState<ClubProfile>(clubProfile);
+  const [formAdminPin, setFormAdminPin] = useState<string>(adminSettings.adminPin);
+  const [formAdminEmail, setFormAdminEmail] = useState<string>(adminSettings.adminEmails[0] || '');
   const [newTeamName, setNewTeamName] = useState('');
   const [copiedShareLink, setCopiedShareLink] = useState(false);
-  const [copiedAppUrl, setCopiedAppUrl] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Sync state when modal opens or profile changes
+  useEffect(() => {
+    if (isOpen) {
+      setFormProfile(clubProfile);
+      setFormAdminPin(adminSettings.adminPin);
+      setFormAdminEmail(adminSettings.adminEmails[0] || '');
+    }
+  }, [clubProfile, adminSettings, isOpen]);
+
   if (!isOpen) return null;
 
-  // Handle saving profile changes
+  // Handle saving profile & admin changes
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
     const cleanNumber = formProfile.clubNumber.trim().toUpperCase() || '654';
@@ -96,10 +115,26 @@ export const SchoolCustomizerModal: React.FC<SchoolCustomizerModalProps> = ({
     };
 
     onUpdateClubProfile(updated);
+
+    // Save Admin PIN & Email if changed
+    const cleanPin = formAdminPin.trim();
+    const cleanEmail = formAdminEmail.trim().toLowerCase();
+    if (cleanPin.length >= 3) {
+      const updatedEmails = cleanEmail
+        ? Array.from(new Set([cleanEmail, ...adminSettings.adminEmails]))
+        : adminSettings.adminEmails;
+
+      onUpdateAdminSettings({
+        ...adminSettings,
+        adminPin: cleanPin,
+        adminEmails: updatedEmails,
+      });
+    }
+
     onAddToast(
       'success',
       'Team & School Profile Updated',
-      `Customized as "${cleanSchool}" (Team ${cleanNumber}) with ${updated.teams.length} sub-teams.`
+      `Configured "${cleanSchool}" (Team ${cleanNumber}) with ${updated.teams.length} sub-teams.`
     );
     onClose();
   };
@@ -178,6 +213,7 @@ export const SchoolCustomizerModal: React.FC<SchoolCustomizerModalProps> = ({
       exportDate: new Date().toISOString(),
       generator: 'VEX Robotics Inventory Control — Open Template',
       profile: formProfile,
+      adminSettings,
       items,
       logs,
     };
@@ -193,7 +229,7 @@ export const SchoolCustomizerModal: React.FC<SchoolCustomizerModalProps> = ({
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 
-    onAddToast('success', 'Backup Exported', 'Full school setup and inventory catalog downloaded.');
+    onAddToast('success', 'Backup Exported', 'Full school setup, PIN, and inventory catalog downloaded.');
   };
 
   // Import JSON package
@@ -213,6 +249,7 @@ export const SchoolCustomizerModal: React.FC<SchoolCustomizerModalProps> = ({
 
         onImportFullBackup({
           profile: parsed.profile,
+          adminSettings: parsed.adminSettings,
           items: parsed.items,
           logs: parsed.logs,
         });
@@ -231,7 +268,7 @@ export const SchoolCustomizerModal: React.FC<SchoolCustomizerModalProps> = ({
   };
 
   // Copy current share link
-  const currentUrl = typeof window !== 'undefined' ? window.location.href : 'https://aistudio.google.com';
+  const currentUrl = typeof window !== 'undefined' ? window.location.href.split('#')[0] : 'https://aistudio.google.com';
   const handleCopyLink = () => {
     navigator.clipboard.writeText(currentUrl);
     setCopiedShareLink(true);
@@ -487,6 +524,70 @@ export const SchoolCustomizerModal: React.FC<SchoolCustomizerModalProps> = ({
                 </div>
               </div>
 
+              {/* Security & Admin PIN customization */}
+              <div className="pt-3 border-t border-zinc-800 space-y-3">
+                <div>
+                  <label className="text-xs font-semibold text-zinc-200 flex items-center gap-1.5">
+                    <KeyRound className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Admin Security &amp; PIN</span>
+                  </label>
+                  <p className="text-[11px] text-zinc-400">
+                    Controls access to Settings, data reset, and spreadsheet configuration.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] text-zinc-400 mb-1">
+                      Admin Security PIN
+                    </label>
+                    <input
+                      type="text"
+                      value={formAdminPin}
+                      onChange={(e) => setFormAdminPin(e.target.value)}
+                      placeholder="e.g. 654 or 1234"
+                      className="w-full px-3 py-1.5 bg-zinc-950 border border-zinc-800 rounded-lg text-zinc-100 font-mono text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-zinc-400 mb-1">
+                      Coach / Lead Admin Email
+                    </label>
+                    <input
+                      type="email"
+                      value={formAdminEmail}
+                      onChange={(e) => setFormAdminEmail(e.target.value)}
+                      placeholder="coach@school.edu"
+                      className="w-full px-3 py-1.5 bg-zinc-950 border border-zinc-800 rounded-lg text-zinc-100 font-mono text-xs"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Clean Storage Option */}
+              <div className="p-3 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-xs font-semibold text-zinc-200">
+                    Start of Season: Check In All Parts
+                  </div>
+                  <p className="text-[11px] text-zinc-400">
+                    Marks all 279 catalog items as Available in storage cabinets.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (confirm('Check in all 279 items so everything is Available in cabinets?')) {
+                      onResetAllItemsToAvailable();
+                    }
+                  }}
+                  className="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium border border-zinc-700 transition-colors flex items-center gap-1.5 shrink-0"
+                >
+                  <Boxes className="w-3.5 h-3.5" />
+                  <span>Check In All Parts</span>
+                </button>
+              </div>
+
               {/* Action Buttons */}
               <div className="flex items-center justify-between pt-3 border-t border-zinc-800">
                 <button
@@ -522,7 +623,7 @@ export const SchoolCustomizerModal: React.FC<SchoolCustomizerModalProps> = ({
               <div className="p-4 rounded-xl bg-indigo-950/40 border border-indigo-800/60 space-y-2">
                 <div className="flex items-center gap-2 text-indigo-300 font-semibold text-xs">
                   <Share2 className="w-4 h-4" />
-                  <span>How Another School Can Get Their Own Copy</span>
+                  <span>How Any Team Can Copy This</span>
                 </div>
                 <p className="text-[11px] text-zinc-300 leading-relaxed">
                   This entire inventory system is designed as a standalone, zero-dependency web application.

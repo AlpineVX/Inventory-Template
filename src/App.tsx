@@ -48,6 +48,7 @@ import { CheckInOutModal } from './components/CheckInOutModal';
 import { SettingsModal } from './components/SettingsModal';
 import { AdminUnlockModal } from './components/AdminUnlockModal';
 import { SchoolCustomizerModal } from './components/SchoolCustomizerModal';
+import { InstructionManual } from './components/InstructionManual';
 import { ToastContainer, ToastMessage } from './components/Toast';
 
 export default function App() {
@@ -572,9 +573,12 @@ export default function App() {
   };
 
   // Multi-school backup import & preset reset handlers
-  const handleImportFullBackup = (data: { profile?: ClubProfile; items?: InventoryItem[]; logs?: AuditLog[] }) => {
+  const handleImportFullBackup = (data: { profile?: ClubProfile; adminSettings?: AdminSettings; items?: InventoryItem[]; logs?: AuditLog[] }) => {
     if (data.profile) {
       setClubProfile(data.profile);
+    }
+    if (data.adminSettings) {
+      setAdminSettings(data.adminSettings);
     }
     if (data.items && data.items.length > 0) {
       setItems(data.items);
@@ -584,7 +588,27 @@ export default function App() {
       setLogs(data.logs);
       saveCachedLogs(data.logs);
     }
-    addToast('success', 'Backup Restored', 'All school profiles, inventory items, and logs loaded successfully.');
+    addToast('success', 'Backup Restored', 'All school profiles, PINs, inventory items, and logs loaded successfully.');
+  };
+
+  const handleResetAllItemsToAvailable = () => {
+    setItems((prev) => {
+      const allAvailable = prev.map((item) => ({
+        ...item,
+        status: 'Available' as const,
+        currentUser: '',
+        dateOut: '',
+        notes: 'Ready in storage',
+        location: getCategoryDefaultLocation(item.category),
+      }));
+      saveCachedInventory(allAvailable);
+      return allAvailable;
+    });
+    addToast(
+      'success',
+      'All Items Checked In',
+      'All 279 catalog parts are now Available in their designated storage cabinets.'
+    );
   };
 
   const handleResetToTemplate = (presetKey: 'lake_travis' | 'generic' | 'fresh_starter') => {
@@ -745,6 +769,16 @@ export default function App() {
         {activeTab === 'packlist' && <CompetitionPackList items={items} />}
 
         {activeTab === 'logs' && <ActivityLogs logs={logs} />}
+
+        {activeTab === 'manual' && (
+          <InstructionManual
+            clubProfile={clubProfile}
+            onOpenSchoolCustomizer={() => setIsSchoolCustomizerOpen(true)}
+            onOpenAssetsModal={() => setIsAssetsModalOpen(true)}
+            onOpenCheckout={() => handleOpenCheckoutModal()}
+            onOpenSettings={handleOpenSettingsProtected}
+          />
+        )}
       </main>
 
       {/* Mobile Fixed Bottom Nav (Natural thumb zone) */}
@@ -779,6 +813,12 @@ export default function App() {
               className="text-indigo-400 hover:text-indigo-300 font-medium transition-colors underline"
             >
               Customize / Clone for Your School
+            </button>
+            <button
+              onClick={() => setActiveTab('manual')}
+              className="text-zinc-200 hover:text-white font-medium transition-colors underline"
+            >
+              Instruction Manual
             </button>
             <span>·</span>
             <button
@@ -850,6 +890,9 @@ export default function App() {
         onUpdateClubProfile={setClubProfile}
         items={items}
         logs={logs}
+        adminSettings={adminSettings}
+        onUpdateAdminSettings={setAdminSettings}
+        onResetAllItemsToAvailable={handleResetAllItemsToAvailable}
         onImportFullBackup={handleImportFullBackup}
         onResetToTemplate={handleResetToTemplate}
         onAddToast={addToast}
@@ -859,6 +902,7 @@ export default function App() {
       <ClubAssetsModal
         isOpen={isAssetsModalOpen}
         onClose={() => setIsAssetsModalOpen(false)}
+        clubProfile={clubProfile}
       />
 
       {/* Toast Notification Container */}

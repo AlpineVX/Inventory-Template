@@ -130,7 +130,7 @@ export const TeamLookup: React.FC<TeamLookupProps> = ({
               type="text"
               value={customTeamInput}
               onChange={(e) => setCustomTeamInput(e.target.value)}
-              placeholder="Other Team (e.g. 654X)"
+              placeholder={`Other (e.g. ${clubProfile?.clubNumber || '1234'}X)`}
               className="w-36 px-2.5 py-1.5 text-xs bg-zinc-900 border border-zinc-800 rounded-lg text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-zinc-400"
             />
             <button

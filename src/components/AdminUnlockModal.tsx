@@ -125,7 +125,9 @@ export const AdminUnlockModal: React.FC<AdminUnlockModalProps> = ({
                 className="w-full px-3 py-2 text-center text-sm tracking-widest font-mono bg-zinc-950 border border-zinc-800 rounded-lg text-white placeholder-zinc-600 focus:outline-none focus:border-zinc-400"
               />
               <span className="block text-[11px] text-zinc-500 mt-1 text-center">
-                Enter the security PIN set by your team mentor or lead
+                {adminSettings.adminPin === '654'
+                  ? 'Default initial template PIN is 654 (changeable in Settings or School Setup)'
+                  : 'Enter the security PIN set by your team coach or mentor'}
               </span>
             </div>
           ) : (

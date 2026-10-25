@@ -202,7 +202,7 @@ export interface SyncStatus {
   url: string;
 }
 
-export type ActiveTab = 'dashboard' | 'inventory' | 'teams' | 'packlist' | 'logs';
+export type ActiveTab = 'dashboard' | 'inventory' | 'teams' | 'packlist' | 'logs' | 'manual';
 
 export type UserRole = 'member' | 'admin';
 

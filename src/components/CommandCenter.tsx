@@ -15,6 +15,7 @@ import {
   Wrench,
   FileText,
   Sparkles,
+  BookOpen,
 } from 'lucide-react';
 import { InventoryItem, AuditLog, VexCategory, ActiveTab, CLUB_TEAMS, ClubProfile, classifyVexCategory } from '../types';
 
@@ -180,6 +181,13 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
             </p>
           </div>
           <div className="flex items-center gap-2.5">
+            <button
+              onClick={() => onNavigateTab('manual')}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 rounded-md transition-colors"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-indigo-400" />
+              <span>Manual</span>
+            </button>
             <button
               onClick={() => onNavigateTab('packlist')}
               className="px-3 py-1.5 text-xs font-medium text-zinc-300 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-md transition-colors"
