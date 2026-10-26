@@ -21,8 +21,10 @@ import {
   KeyRound,
   Mail,
   Boxes,
+  Sliders,
 } from 'lucide-react';
-import { ClubProfile, DEFAULT_CLUB_PROFILE, InventoryItem, AuditLog, AdminSettings } from '../types';
+import { ClubProfile, DEFAULT_CLUB_PROFILE, InventoryItem, AuditLog, AdminSettings, PartKind } from '../types';
+import { PartStockCustomizer } from './PartStockCustomizer';
 
 interface SchoolCustomizerModalProps {
   isOpen: boolean;
@@ -30,26 +32,36 @@ interface SchoolCustomizerModalProps {
   clubProfile: ClubProfile;
   onUpdateClubProfile: (profile: ClubProfile) => void;
   items: InventoryItem[];
+  onUpdateItems: (newItems: InventoryItem[]) => void;
   logs: AuditLog[];
   adminSettings: AdminSettings;
   onUpdateAdminSettings: (settings: AdminSettings) => void;
   onResetAllItemsToAvailable: () => void;
   onImportFullBackup: (data: { profile?: ClubProfile; adminSettings?: AdminSettings; items?: InventoryItem[]; logs?: AuditLog[] }) => void;
-  onResetToTemplate: (presetKey: 'lake_travis' | 'generic' | 'fresh_starter') => void;
+  onResetToTemplate: (presetKey: 'lake_travis' | 'generic' | 'fresh_starter' | 'random_stock') => void;
   onAddToast: (type: 'success' | 'error' | 'info', title: string, message?: string) => void;
+  customPartKinds: PartKind[];
+  onUpdateCustomPartKinds: (kinds: PartKind[]) => void;
+  initialTab?: 'customize' | 'parts_stock' | 'clone_guide' | 'backup';
 }
 
 const PRESET_SCHOOLS: {
-  key: 'lake_travis' | 'generic' | 'fresh_starter';
+  key: 'lake_travis' | 'generic' | 'fresh_starter' | 'random_stock';
   title: string;
   number: string;
   desc: string;
 }[] = [
   {
+    key: 'random_stock',
+    title: 'Fresh Randomized Stock',
+    number: '888',
+    desc: 'Simulates a unique school with randomized quantities across all parts and realistic checkouts.',
+  },
+  {
     key: 'lake_travis',
     title: 'Lake Travis High School',
     number: '654',
-    desc: '11 teams (654A, B, G, J, K, T, V, X, Y, Z, RECF) with preloaded 279-part VEX catalog.',
+    desc: '11 teams (654A, B, G, J, K, T, V, X, Y, Z, RECF) with preloaded standard VEX catalog.',
   },
   {
     key: 'generic',
@@ -61,7 +73,7 @@ const PRESET_SCHOOLS: {
     key: 'fresh_starter',
     title: 'Clean Blank Slate',
     number: '101',
-    desc: 'Start fresh for your own team with all 279 parts marked Available in storage.',
+    desc: 'Start fresh for your own team with all parts marked Available in storage.',
   },
 ];
 
@@ -71,6 +83,7 @@ export const SchoolCustomizerModal: React.FC<SchoolCustomizerModalProps> = ({
   clubProfile,
   onUpdateClubProfile,
   items,
+  onUpdateItems,
   logs,
   adminSettings,
   onUpdateAdminSettings,
@@ -78,8 +91,11 @@ export const SchoolCustomizerModal: React.FC<SchoolCustomizerModalProps> = ({
   onImportFullBackup,
   onResetToTemplate,
   onAddToast,
+  customPartKinds,
+  onUpdateCustomPartKinds,
+  initialTab = 'customize',
 }) => {
-  const [activeTab, setActiveTab] = useState<'customize' | 'clone_guide' | 'backup'>('customize');
+  const [activeTab, setActiveTab] = useState<'customize' | 'parts_stock' | 'clone_guide' | 'backup'>(initialTab);
   const [formProfile, setFormProfile] = useState<ClubProfile>(clubProfile);
   const [formAdminPin, setFormAdminPin] = useState<string>(adminSettings.adminPin);
   const [formAdminEmail, setFormAdminEmail] = useState<string>(adminSettings.adminEmails[0] || '');
@@ -91,6 +107,7 @@ export const SchoolCustomizerModal: React.FC<SchoolCustomizerModalProps> = ({
   // Sync state when modal opens or profile changes
   useEffect(() => {
     if (isOpen) {
+      if (initialTab) setActiveTab(initialTab);
       setFormProfile(clubProfile);
       setFormAdminPin(adminSettings.adminPin);
       setFormAdminEmail(adminSettings.adminEmails[0] || '');
@@ -314,6 +331,17 @@ export const SchoolCustomizerModal: React.FC<SchoolCustomizerModalProps> = ({
           >
             <School className="w-3.5 h-3.5" />
             <span>Customize School Profile</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('parts_stock')}
+            className={`pb-2.5 transition-colors whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
+              activeTab === 'parts_stock'
+                ? 'text-white border-b-2 border-indigo-400 font-semibold'
+                : 'text-zinc-400 hover:text-zinc-200'
+            }`}
+          >
+            <Sliders className="w-3.5 h-3.5 text-indigo-400" />
+            <span>Set Part Quantities (+ / -)</span>
           </button>
           <button
             onClick={() => setActiveTab('clone_guide')}
@@ -615,6 +643,18 @@ export const SchoolCustomizerModal: React.FC<SchoolCustomizerModalProps> = ({
                 </div>
               </div>
             </form>
+          )}
+
+          {/* TAB: PARTS & STOCK QUANTITIES */}
+          {activeTab === 'parts_stock' && (
+            <PartStockCustomizer
+              items={items}
+              onUpdateItems={onUpdateItems}
+              clubProfile={formProfile}
+              customPartKinds={customPartKinds}
+              onUpdateCustomPartKinds={onUpdateCustomPartKinds}
+              onAddToast={onAddToast}
+            />
           )}
 
           {/* TAB 2: CLONE & DEPLOY GUIDE */}

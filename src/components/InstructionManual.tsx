@@ -335,9 +335,23 @@ export const InstructionManual: React.FC<InstructionManualProps> = ({
                 </div>
 
                 <div className="p-3.5 bg-zinc-950 rounded-xl border border-zinc-800 space-y-1.5">
-                  <span className="text-xs font-bold text-white">4. Starting Fresh: "Check In All Parts"</span>
+                  <span className="text-xs font-bold text-white">4. Setting Exact Part Quantities (+ / -) for Your School</span>
+                  <p className="text-xs text-zinc-400 leading-relaxed">
+                    Every school owns a different amount of parts. Under the <strong>"Set Part Quantities (+ / -)"</strong> tab (or the button in the Inventory Browser), you can:
+                  </p>
+                  <ul className="list-disc list-inside text-xs text-zinc-400 space-y-1 pl-2">
+                    <li>Click <strong className="text-zinc-200">+</strong> to add 1 part, or <strong className="text-zinc-200">-</strong> to subtract 1 part of any kind.</li>
+                    <li>Type the exact count directly in the number box (e.g. change 15 to 28 motors) and press enter.</li>
+                    <li>Click <strong className="text-zinc-200">+5</strong> to bulk add incoming hardware packs.</li>
+                    <li>Click <strong className="text-indigo-300">"Randomize Quantities"</strong> to automatically generate realistic random hardware numbers (Small, Standard, or Mega club).</li>
+                    <li>Click <strong className="text-zinc-200">"Add Custom Part Kind"</strong> to add any custom 3D printed parts, flex wheels, or tools to your catalog.</li>
+                  </ul>
+                </div>
+
+                <div className="p-3.5 bg-zinc-950 rounded-xl border border-zinc-800 space-y-1.5">
+                  <span className="text-xs font-bold text-white">5. Starting Fresh: "Check In All Parts"</span>
                   <p className="text-xs text-zinc-400">
-                    If you want to start a brand-new season with all 279 items ready inside your storage cabinet, click the <strong>"Check In All Parts"</strong> button in the School Setup tab.
+                    If you want to start a brand-new season with all parts ready inside your storage cabinet, click the <strong>"Check In All Parts"</strong> button in the School Setup tab.
                   </p>
                 </div>
               </div>
@@ -348,7 +362,7 @@ export const InstructionManual: React.FC<InstructionManualProps> = ({
                   className="px-4 py-2 bg-indigo-500 hover:bg-indigo-400 text-zinc-950 font-bold text-xs rounded-xl flex items-center gap-1.5"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
-                  <span>Open School Customizer Now</span>
+                  <span>Open School &amp; Stock Customizer Now</span>
                 </button>
               </div>
             </div>

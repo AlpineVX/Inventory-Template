@@ -14,6 +14,7 @@ import {
   Tag,
   ShieldCheck,
   Lock,
+  Sliders,
 } from 'lucide-react';
 import { InventoryItem, VexCategory, SENSOR_CATEGORIES } from '../types';
 
@@ -24,17 +25,21 @@ interface MobileInventoryListProps {
   onOpenCheckout: (item: InventoryItem, action?: 'Check Out' | 'Check In') => void;
   isAdmin: boolean;
   onOpenAdminUnlock: () => void;
+  onOpenStockCustomizer?: () => void;
 }
 
 const CATEGORIES: (VexCategory | 'All')[] = [
   'All',
+  'Brain',
+  'Radio',
+  'Motors',
+  'Controllers',
+  'Batteries',
   'Sensors',
   'Optical',
   'Distance',
   'Inertial',
   'Rotational',
-  'Brain',
-  'Radio',
   'Solenoids',
 ];
 
@@ -45,6 +50,7 @@ export const MobileInventoryList: React.FC<MobileInventoryListProps> = ({
   onOpenCheckout,
   isAdmin,
   onOpenAdminUnlock,
+  onOpenStockCustomizer,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | 'Available' | 'Checked Out'>('All');
@@ -117,6 +123,17 @@ export const MobileInventoryList: React.FC<MobileInventoryListProps> = ({
           </button>
         )}
       </div>
+
+      {/* Adjust Part Stock button */}
+      {onOpenStockCustomizer && (
+        <button
+          onClick={onOpenStockCustomizer}
+          className="flex items-center justify-center gap-1.5 w-full py-2 px-3 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 font-semibold text-xs transition-colors shadow-sm"
+        >
+          <Sliders className="w-3.5 h-3.5 text-indigo-400" />
+          <span>Set Part Quantities (+ / -)</span>
+        </button>
+      )}
 
       {/* Category Pills Horizontal Scroller */}
       <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 -mx-1 px-1">

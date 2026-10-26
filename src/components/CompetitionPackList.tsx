@@ -45,12 +45,16 @@ export const CompetitionPackList: React.FC<CompetitionPackListProps> = ({ items 
     const map: Record<VexCategory, number> = {
       Brain: 0,
       Radio: 0,
+      Motors: 0,
+      Controllers: 0,
+      Batteries: 0,
       Sensors: 0,
       Optical: 0,
       Distance: 0,
       Inertial: 0,
       Rotational: 0,
       Solenoids: 0,
+      Other: 0,
     };
     items.forEach((item) => {
       if (item.status === 'Available') {

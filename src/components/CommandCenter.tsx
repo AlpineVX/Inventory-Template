@@ -16,6 +16,7 @@ import {
   FileText,
   Sparkles,
   BookOpen,
+  Sliders,
 } from 'lucide-react';
 import { InventoryItem, AuditLog, VexCategory, ActiveTab, CLUB_TEAMS, ClubProfile, classifyVexCategory } from '../types';
 
@@ -30,6 +31,7 @@ interface CommandCenterProps {
   onOpenAdminUnlock?: () => void;
   clubProfile?: ClubProfile;
   onOpenSchoolCustomizer?: () => void;
+  onOpenStockCustomizer?: () => void;
 }
 
 const SENSOR_CATEGORIES: VexCategory[] = ['Optical', 'Distance', 'Inertial', 'Rotational'];
@@ -45,6 +47,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
   onOpenAdminUnlock,
   clubProfile,
   onOpenSchoolCustomizer,
+  onOpenStockCustomizer,
 }) => {
   const totalCount = items.length;
   const availableCount = items.filter((i) => i.status === 'Available').length;
@@ -91,13 +94,16 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
     })
     .slice(0, 6);
 
-  // High-level category rollup matching Google Sheets:
-  // Sensors (98), Radio (30), Brain (20), Solenoid (31) - Motors removed per user request
+  // High-level category rollup matching inventory categories
   const getItemCat = (i: InventoryItem) => classifyVexCategory(i.category, i.itemName, i.itemId);
 
   const sensorsItems = items.filter((i) => SENSOR_CATEGORIES.includes(getItemCat(i)) || i.category === 'Sensors');
   const sensorsCheckedOut = sensorsItems.filter((i) => i.status === 'Checked Out').length;
   const sensorsAvailable = sensorsItems.length - sensorsCheckedOut;
+
+  const motorsItems = items.filter((i) => getItemCat(i) === 'Motors');
+  const motorsCheckedOut = motorsItems.filter((i) => i.status === 'Checked Out').length;
+  const motorsAvailable = motorsItems.length - motorsCheckedOut;
 
   const radioItems = items.filter((i) => getItemCat(i) === 'Radio');
   const radioCheckedOut = radioItems.filter((i) => i.status === 'Checked Out').length;
@@ -111,7 +117,23 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
   const solenoidCheckedOut = solenoidItems.filter((i) => i.status === 'Checked Out').length;
   const solenoidAvailable = solenoidItems.length - solenoidCheckedOut;
 
+  const controllerItems = items.filter((i) => getItemCat(i) === 'Controllers');
+  const controllerCheckedOut = controllerItems.filter((i) => i.status === 'Checked Out').length;
+  const controllerAvailable = controllerItems.length - controllerCheckedOut;
+
+  const batteryItems = items.filter((i) => getItemCat(i) === 'Batteries');
+  const batteryCheckedOut = batteryItems.filter((i) => i.status === 'Checked Out').length;
+  const batteryAvailable = batteryItems.length - batteryCheckedOut;
+
   const mainSummaryRows = [
+    ...(motorsItems.length > 0 ? [{
+      name: 'Smart Motors',
+      targetCategory: 'Motors' as VexCategory,
+      total: motorsItems.length,
+      available: motorsAvailable,
+      checkedOut: motorsCheckedOut,
+      percentAvail: motorsItems.length > 0 ? Math.round((motorsAvailable / motorsItems.length) * 100) : 0,
+    }] : []),
     {
       name: 'Sensors (Total)',
       targetCategory: 'Sensors' as VexCategory,
@@ -137,13 +159,29 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
       percentAvail: brainItems.length > 0 ? Math.round((brainAvailable / brainItems.length) * 100) : 0,
     },
     {
-      name: 'Solonoid',
+      name: 'Solenoids',
       targetCategory: 'Solenoids' as VexCategory,
       total: solenoidItems.length,
       available: solenoidAvailable,
       checkedOut: solenoidCheckedOut,
       percentAvail: solenoidItems.length > 0 ? Math.round((solenoidAvailable / solenoidItems.length) * 100) : 0,
     },
+    ...(controllerItems.length > 0 ? [{
+      name: 'Controllers',
+      targetCategory: 'Controllers' as VexCategory,
+      total: controllerItems.length,
+      available: controllerAvailable,
+      checkedOut: controllerCheckedOut,
+      percentAvail: controllerItems.length > 0 ? Math.round((controllerAvailable / controllerItems.length) * 100) : 0,
+    }] : []),
+    ...(batteryItems.length > 0 ? [{
+      name: 'Batteries',
+      targetCategory: 'Batteries' as VexCategory,
+      total: batteryItems.length,
+      available: batteryAvailable,
+      checkedOut: batteryCheckedOut,
+      percentAvail: batteryItems.length > 0 ? Math.round((batteryAvailable / batteryItems.length) * 100) : 0,
+    }] : []),
   ];
 
   // Specific Sensor Type Breakdown:
@@ -182,10 +220,18 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
           </div>
           <div className="flex items-center gap-2.5">
             <button
-              onClick={() => onNavigateTab('manual')}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 rounded-md transition-colors"
+              onClick={onOpenStockCustomizer || onOpenSchoolCustomizer}
+              title="Add or subtract parts (+/-) or enter exact stock counts for your school"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 rounded-md transition-colors shadow-sm"
             >
-              <BookOpen className="w-3.5 h-3.5 text-indigo-400" />
+              <Sliders className="w-3.5 h-3.5 text-indigo-400" />
+              <span>Set Part Quantities (+ / -)</span>
+            </button>
+            <button
+              onClick={() => onNavigateTab('manual')}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-zinc-300 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-md transition-colors"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-zinc-400" />
               <span>Manual</span>
             </button>
             <button

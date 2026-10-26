@@ -18,9 +18,12 @@ import {
   getCategoryDefaultLocation,
   classifyVexCategory,
   normalizeItemId,
+  PartKind,
 } from './types';
 import {
   generateDefaultInventory,
+  generateRandomInventory,
+  DEFAULT_PART_KINDS,
   INITIAL_LOGS,
 } from './data/mockInventory';
 import {
@@ -55,10 +58,10 @@ export default function App() {
   // 1. Core State
   const [items, setItems] = useState<InventoryItem[]>(() => {
     const version = typeof window !== 'undefined' ? localStorage.getItem('vex_schema_ver') : null;
-    if (version !== 'v7') {
+    if (version !== 'v8_random_custom_stock') {
       const fresh = generateDefaultInventory();
       if (typeof window !== 'undefined') {
-        localStorage.setItem('vex_schema_ver', 'v7');
+        localStorage.setItem('vex_schema_ver', 'v8_random_custom_stock');
       }
       saveCachedInventory(fresh);
       return fresh;
@@ -69,9 +72,9 @@ export default function App() {
 
   const [logs, setLogs] = useState<AuditLog[]>(() => {
     const version = typeof window !== 'undefined' ? localStorage.getItem('vex_schema_ver_logs') : null;
-    if (version !== 'v4') {
+    if (version !== 'v5') {
       if (typeof window !== 'undefined') {
-        localStorage.setItem('vex_schema_ver_logs', 'v4');
+        localStorage.setItem('vex_schema_ver_logs', 'v5');
       }
       saveCachedLogs(INITIAL_LOGS);
       return INITIAL_LOGS;
@@ -79,6 +82,27 @@ export default function App() {
     const cached = getCachedLogs();
     return cached && cached.length > 0 ? cached : INITIAL_LOGS;
   });
+
+  // Custom Part Kinds list (allows schools to add custom part models)
+  const [customPartKinds, setCustomPartKinds] = useState<PartKind[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('vex_custom_part_kinds');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error('Failed to parse custom part kinds', e);
+        }
+      }
+    }
+    return DEFAULT_PART_KINDS;
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('vex_custom_part_kinds', JSON.stringify(customPartKinds));
+    }
+  }, [customPartKinds]);
 
   // School & Team Configuration (Allows any school or club to use this website)
   const [clubProfile, setClubProfile] = useState<ClubProfile>(() => {
@@ -143,8 +167,14 @@ export default function App() {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
   const [isAdminUnlockModalOpen, setIsAdminUnlockModalOpen] = useState<boolean>(false);
   const [isSchoolCustomizerOpen, setIsSchoolCustomizerOpen] = useState<boolean>(false);
+  const [schoolCustomizerTab, setSchoolCustomizerTab] = useState<'customize' | 'parts_stock' | 'clone_guide' | 'backup'>('customize');
   const [isAssetsModalOpen, setIsAssetsModalOpen] = useState<boolean>(false);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  const handleOpenSchoolCustomizer = (tab: 'customize' | 'parts_stock' | 'clone_guide' | 'backup' = 'customize') => {
+    setSchoolCustomizerTab(tab);
+    setIsSchoolCustomizerOpen(true);
+  };
 
   // Mobile viewport detection and manual layout mode switch
   const [viewMode, setViewMode] = useState<'auto' | 'mobile' | 'desktop'>(() => {
@@ -611,8 +641,13 @@ export default function App() {
     );
   };
 
-  const handleResetToTemplate = (presetKey: 'lake_travis' | 'generic' | 'fresh_starter') => {
-    if (presetKey === 'lake_travis') {
+  const handleResetToTemplate = (presetKey: 'lake_travis' | 'generic' | 'fresh_starter' | 'random_stock') => {
+    if (presetKey === 'random_stock') {
+      const fresh = generateRandomInventory({ presetSize: 'standard', clubTeams: clubProfile.teams });
+      setItems(fresh);
+      saveCachedInventory(fresh);
+      addToast('success', 'Random Stock Generated', `Loaded fresh randomized inventory with ${fresh.length} hardware items.`);
+    } else if (presetKey === 'lake_travis') {
       setClubProfile(DEFAULT_CLUB_PROFILE);
       const fresh = generateDefaultInventory();
       setItems(fresh);
@@ -630,7 +665,7 @@ export default function App() {
         isCustomized: true,
       };
       setClubProfile(genericProfile);
-      const fresh = generateDefaultInventory();
+      const fresh = generateRandomInventory({ presetSize: 'standard', clubTeams: genericProfile.teams });
       setItems(fresh);
       saveCachedInventory(fresh);
       setLogs([]);
@@ -646,7 +681,7 @@ export default function App() {
         isCustomized: true,
       };
       setClubProfile(freshProfile);
-      const fresh = generateDefaultInventory();
+      const fresh = generateRandomInventory({ presetSize: 'small', clubTeams: freshProfile.teams });
       const clean = fresh.map((i) => ({
         ...i,
         status: 'Available' as const,
@@ -696,7 +731,8 @@ export default function App() {
           onSyncNow={() => handleLiveSync(syncStatus.url, true)}
           onOpenAdminUnlock={handleOpenAdminUnlock}
           onLockAdmin={handleLockAdmin}
-          onOpenSchoolCustomizer={() => setIsSchoolCustomizerOpen(true)}
+          onOpenSchoolCustomizer={() => handleOpenSchoolCustomizer('customize')}
+          onOpenManual={() => setActiveTab('manual')}
           isMobileModeForced={viewMode === 'mobile'}
           onToggleViewMode={handleToggleViewMode}
           onOpenAssetsModal={() => setIsAssetsModalOpen(true)}
@@ -713,7 +749,8 @@ export default function App() {
           onSyncNow={() => handleLiveSync(syncStatus.url, true)}
           onOpenAdminUnlock={handleOpenAdminUnlock}
           onLockAdmin={handleLockAdmin}
-          onOpenSchoolCustomizer={() => setIsSchoolCustomizerOpen(true)}
+          onOpenSchoolCustomizer={() => handleOpenSchoolCustomizer('customize')}
+          onOpenStockCustomizer={() => handleOpenSchoolCustomizer('parts_stock')}
           onToggleViewMode={handleToggleViewMode}
           onOpenAssetsModal={() => setIsAssetsModalOpen(true)}
         />
@@ -732,7 +769,8 @@ export default function App() {
             onNavigateTab={setActiveTab}
             onOpenCheckout={(item) => handleOpenCheckoutModal(item, 'Check Out')}
             clubProfile={clubProfile}
-            onOpenSchoolCustomizer={() => setIsSchoolCustomizerOpen(true)}
+            onOpenSchoolCustomizer={() => handleOpenSchoolCustomizer('customize')}
+            onOpenStockCustomizer={() => handleOpenSchoolCustomizer('parts_stock')}
           />
         )}
 
@@ -747,6 +785,11 @@ export default function App() {
             onOpenAdminUnlock={handleOpenAdminUnlock}
             isMobileMode={isMobile}
             clubProfile={clubProfile}
+            onOpenStockCustomizer={() => handleOpenSchoolCustomizer('parts_stock')}
+            onUpdateItems={setItems}
+            customPartKinds={customPartKinds}
+            onUpdateCustomPartKinds={setCustomPartKinds}
+            onAddToast={addToast}
           />
         )}
 
@@ -889,6 +932,7 @@ export default function App() {
         clubProfile={clubProfile}
         onUpdateClubProfile={setClubProfile}
         items={items}
+        onUpdateItems={setItems}
         logs={logs}
         adminSettings={adminSettings}
         onUpdateAdminSettings={setAdminSettings}
@@ -896,6 +940,9 @@ export default function App() {
         onImportFullBackup={handleImportFullBackup}
         onResetToTemplate={handleResetToTemplate}
         onAddToast={addToast}
+        customPartKinds={customPartKinds}
+        onUpdateCustomPartKinds={setCustomPartKinds}
+        initialTab={schoolCustomizerTab}
       />
 
       {/* Club Assets & QR Badges Download Modal */}

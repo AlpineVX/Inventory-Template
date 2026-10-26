@@ -9,6 +9,7 @@ import {
   Download,
   Sparkles,
   School,
+  BookOpen,
 } from 'lucide-react';
 import { SyncStatus, AdminSettings, ClubProfile } from '../types';
 
@@ -21,6 +22,7 @@ interface MobileTopHeaderProps {
   onOpenAdminUnlock: () => void;
   onLockAdmin: () => void;
   onOpenSchoolCustomizer: () => void;
+  onOpenManual?: () => void;
   isMobileModeForced: boolean;
   onToggleViewMode: () => void;
   onOpenAssetsModal?: () => void;
@@ -35,6 +37,7 @@ export const MobileTopHeader: React.FC<MobileTopHeaderProps> = ({
   onOpenAdminUnlock,
   onLockAdmin,
   onOpenSchoolCustomizer,
+  onOpenManual,
   isMobileModeForced,
   onToggleViewMode,
   onOpenAssetsModal,
@@ -70,6 +73,18 @@ export const MobileTopHeader: React.FC<MobileTopHeaderProps> = ({
 
       {/* Right: Quick actions */}
       <div className="flex items-center gap-1.5 shrink-0">
+        {/* Instruction Manual */}
+        {onOpenManual && (
+          <button
+            onClick={onOpenManual}
+            title="Instruction Manual & Setup Guide"
+            aria-label="Instruction Manual"
+            className="p-1.5 min-w-[36px] min-h-[36px] flex items-center justify-center text-amber-400 bg-amber-500/10 border border-amber-500/20 hover:border-amber-500/40 rounded-lg active:scale-95 transition-transform"
+          >
+            <BookOpen className="w-3.5 h-3.5" />
+          </button>
+        )}
+
         {/* Customize school / clone modal */}
         <button
           onClick={onOpenSchoolCustomizer}

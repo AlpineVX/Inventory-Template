@@ -1,12 +1,16 @@
 export type VexCategory =
   | 'Brain'
   | 'Radio'
+  | 'Motors'
+  | 'Controllers'
+  | 'Batteries'
   | 'Sensors'
   | 'Optical'
   | 'Distance'
   | 'Inertial'
   | 'Rotational'
-  | 'Solenoids';
+  | 'Solenoids'
+  | 'Other';
 
 export const CLUB_TEAMS = [
   '654K',
@@ -42,18 +46,31 @@ export const DEFAULT_CLUB_PROFILE: ClubProfile = {
   isCustomized: false,
 };
 
-export const SENSOR_CATEGORIES: VexCategory[] = ['Optical', 'Distance', 'Inertial', 'Rotational'];
+export const SENSOR_CATEGORIES: VexCategory[] = ['Optical', 'Distance', 'Inertial', 'Rotational', 'Sensors'];
 
 export const CATEGORY_PREFIX_MAP: Record<VexCategory, string> = {
   Brain: 'VEXB',
   Radio: 'VEXR',
+  Motors: 'VEXM',
+  Controllers: 'VEXC',
+  Batteries: 'VEXBAT',
   Sensors: 'VEXS',
   Optical: 'VEXS-O',
   Distance: 'VEXS-DIST',
   Inertial: 'VEXS-INER',
   Rotational: 'VEXS-ROT',
   Solenoids: 'VEXSOL',
+  Other: 'VEXP',
 };
+
+export interface PartKind {
+  id: string;
+  name: string;
+  category: VexCategory;
+  prefix: string;
+  defaultLocation: string;
+  description?: string;
+}
 
 export function normalizeItemId(rawId: string): string {
   if (!rawId) return '';
@@ -76,6 +93,12 @@ export function normalizeItemId(rawId: string): string {
   if (clean.startsWith('VEX-SOL-')) {
     return clean.replace('VEX-SOL-', 'VEXSOL-');
   }
+  if (clean.startsWith('VEX-BAT-')) {
+    return clean.replace('VEX-BAT-', 'VEXBAT-');
+  }
+  if (clean.startsWith('VEX-CTRL-')) {
+    return clean.replace('VEX-CTRL-', 'VEXC-');
+  }
   return clean;
 }
 
@@ -83,9 +106,9 @@ export function isValidVexId(rawId: string): boolean {
   if (!rawId) return false;
   const clean = normalizeItemId(rawId);
   return (
-    /^VEX(S-[A-Z0-9]+|SOL|B|R)-\d+$/i.test(clean) ||
+    /^VEX(S-[A-Z0-9]+|SOL|B|R|M|C|BAT|P|[A-Z0-9]+)-\d+$/i.test(clean) ||
     /^VEX-O-\d+$/i.test(clean) ||
-    /^VEX(BRN|RAD|SOL)-\d+$/i.test(clean)
+    /^VEX(BRN|RAD|SOL|MOT)-\d+$/i.test(clean)
   );
 }
 
@@ -97,6 +120,18 @@ export function classifyVexCategory(category?: string, itemName?: string, itemId
   // Solenoid / Pneumatics
   if (c.includes('solenoid') || c.includes('solonoid') || c.includes('pneumatic') || id.startsWith('VEXSOL')) {
     return 'Solenoids';
+  }
+  // Motors
+  if (c.includes('motor') || n.includes('motor') || id.startsWith('VEXM') || id.startsWith('VEXMOT')) {
+    return 'Motors';
+  }
+  // Controllers
+  if (c.includes('controller') || n.includes('controller') || id.startsWith('VEXC')) {
+    return 'Controllers';
+  }
+  // Batteries
+  if (c.includes('battery') || c.includes('batter') || n.includes('battery') || id.startsWith('VEXBAT')) {
+    return 'Batteries';
   }
   // Optical Sensor
   if (c.includes('optical') || n.includes('optical') || id.includes('VEXS-O') || id.includes('-O-') || id.startsWith('VEX-O-')) {
@@ -129,10 +164,10 @@ export function classifyVexCategory(category?: string, itemName?: string, itemId
   if (id.startsWith('VEXS-INER')) return 'Inertial';
   if (id.startsWith('VEXS-ROT')) return 'Rotational';
   if (c.includes('sensor') || n.includes('sensor')) {
-    return 'Distance';
+    return 'Sensors';
   }
 
-  return 'Distance';
+  return 'Other';
 }
 
 export function getCategoryDefaultLocation(category: VexCategory | string): string {
@@ -153,7 +188,15 @@ export function getCategoryDefaultLocation(category: VexCategory | string): stri
   ) {
     return 'Pneumatics Cabinet';
   }
-  // Brain, Radio, and Motors are in Cabinet 1
+  if (normalized.includes('motor')) {
+    return 'Cabinet 1 (Motors)';
+  }
+  if (normalized.includes('controller')) {
+    return 'Controller Storage Rack';
+  }
+  if (normalized.includes('battery') || normalized.includes('batter')) {
+    return 'Battery Charging Station';
+  }
   return 'Cabinet 1';
 }
 

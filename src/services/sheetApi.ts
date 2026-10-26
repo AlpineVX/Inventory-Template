@@ -328,12 +328,16 @@ export async function fetchLiveInventory(apiUrl: string): Promise<{
   const DEFAULT_ITEM_NAMES: Record<VexCategory, string> = {
     Radio: 'V5 Robot Radio',
     Brain: 'V5 Robot Brain',
+    Motors: 'V5 Smart Motor (11W)',
+    Controllers: 'V5 Robot Controller',
+    Batteries: 'V5 Robot Battery (Li-ion)',
     Solenoids: 'Pneumatic Solenoid',
     Optical: 'Optical Sensor',
     Distance: 'Distance Sensor',
     Inertial: 'Inertial Sensor',
     Rotational: 'Rotational Sensor',
     Sensors: 'Sensor',
+    Other: 'Hardware Component',
   };
 
   const mappedInventory: InventoryItem[] = [];

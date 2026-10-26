@@ -1,5 +1,5 @@
 import React from 'react';
-import { RefreshCw, Settings, Plus, ShieldCheck, Lock, Smartphone, Download, Sparkles, School } from 'lucide-react';
+import { RefreshCw, Settings, Plus, ShieldCheck, Lock, Smartphone, Download, Sparkles, School, Sliders } from 'lucide-react';
 import { ActiveTab, SyncStatus, AdminSettings, ClubProfile } from '../types';
 
 interface HeaderProps {
@@ -14,6 +14,7 @@ interface HeaderProps {
   onOpenAdminUnlock: () => void;
   onLockAdmin: () => void;
   onOpenSchoolCustomizer: () => void;
+  onOpenStockCustomizer?: () => void;
   onToggleViewMode?: () => void;
   onOpenAssetsModal?: () => void;
 }
@@ -30,6 +31,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenAdminUnlock,
   onLockAdmin,
   onOpenSchoolCustomizer,
+  onOpenStockCustomizer,
   onToggleViewMode,
   onOpenAssetsModal,
 }) => {
@@ -100,6 +102,16 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Right Action & Utility Cluster */}
           <div className="flex items-center gap-2 shrink-0">
+            {/* Set Part Stock (+/-) Button */}
+            <button
+              onClick={onOpenStockCustomizer || onOpenSchoolCustomizer}
+              title="Add or subtract parts (+/-) or enter exact hardware counts for your school"
+              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-zinc-200 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700/80 rounded-md transition-colors whitespace-nowrap shrink-0 shadow-sm"
+            >
+              <Sliders className="w-3.5 h-3.5 text-indigo-400" />
+              <span>Stock Quantities (+/-)</span>
+            </button>
+
             {/* Customize School / Clone Template Button */}
             <button
               onClick={onOpenSchoolCustomizer}

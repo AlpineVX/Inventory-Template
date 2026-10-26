@@ -13,9 +13,13 @@ import {
   ExternalLink,
   ChevronDown,
   Lock,
+  Sliders,
+  Sparkles,
 } from 'lucide-react';
-import { InventoryItem, VexCategory, CLUB_TEAMS, ClubProfile, SENSOR_CATEGORIES } from '../types';
+import { InventoryItem, VexCategory, CLUB_TEAMS, ClubProfile, SENSOR_CATEGORIES, PartKind } from '../types';
 import { MobileInventoryList } from './MobileInventoryList';
+import { PartStockCustomizer } from './PartStockCustomizer';
+import { DEFAULT_PART_KINDS } from '../data/mockInventory';
 
 interface InventoryBrowserProps {
   items: InventoryItem[];
@@ -27,17 +31,25 @@ interface InventoryBrowserProps {
   onOpenAdminUnlock?: () => void;
   isMobileMode?: boolean;
   clubProfile?: ClubProfile;
+  onOpenStockCustomizer?: () => void;
+  onUpdateItems?: (newItems: InventoryItem[]) => void;
+  customPartKinds?: PartKind[];
+  onUpdateCustomPartKinds?: (kinds: PartKind[]) => void;
+  onAddToast?: (type: 'success' | 'error' | 'info', title: string, message?: string) => void;
 }
 
 const CATEGORIES: (VexCategory | 'All')[] = [
   'All',
+  'Brain',
+  'Radio',
+  'Motors',
+  'Controllers',
+  'Batteries',
   'Sensors',
   'Optical',
   'Distance',
   'Inertial',
   'Rotational',
-  'Brain',
-  'Radio',
   'Solenoids',
 ];
 
@@ -51,8 +63,14 @@ export const InventoryBrowser: React.FC<InventoryBrowserProps> = ({
   onOpenAdminUnlock,
   isMobileMode = false,
   clubProfile,
+  onOpenStockCustomizer,
+  onUpdateItems,
+  customPartKinds = DEFAULT_PART_KINDS,
+  onUpdateCustomPartKinds,
+  onAddToast,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [isStockEditorOpen, setIsStockEditorOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<'All' | 'Available' | 'Checked Out'>('All');
   const [teamFilter, setTeamFilter] = useState<string>('All');
   const [sortField, setSortField] = useState<'itemId' | 'itemName' | 'category' | 'status' | 'dateOut'>('itemId');
@@ -243,6 +261,7 @@ export const InventoryBrowser: React.FC<InventoryBrowserProps> = ({
         onOpenCheckout={onOpenCheckout}
         isAdmin={isAdmin}
         onOpenAdminUnlock={onOpenAdminUnlock || (() => {})}
+        onOpenStockCustomizer={onOpenStockCustomizer}
       />
     );
   }
@@ -258,6 +277,7 @@ export const InventoryBrowser: React.FC<InventoryBrowserProps> = ({
           onOpenCheckout={onOpenCheckout}
           isAdmin={isAdmin}
           onOpenAdminUnlock={onOpenAdminUnlock || (() => {})}
+          onOpenStockCustomizer={onOpenStockCustomizer}
         />
       </div>
 
@@ -276,6 +296,24 @@ export const InventoryBrowser: React.FC<InventoryBrowserProps> = ({
           </div>
           <div className="flex items-center gap-2">
             <button
+              onClick={() => {
+                if (onOpenStockCustomizer) {
+                  onOpenStockCustomizer();
+                } else {
+                  setIsStockEditorOpen(!isStockEditorOpen);
+                }
+              }}
+              title="Add or subtract parts (+/-) or enter exact quantities of each part kind for your school"
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-all shadow-sm ${
+                isStockEditorOpen
+                  ? 'bg-indigo-600 text-white'
+                  : 'text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30'
+              }`}
+            >
+              <Sliders className="w-3.5 h-3.5 text-indigo-400" />
+              <span>{isStockEditorOpen ? 'Close Stock Adjuster' : 'Set Part Quantities (+ / -)'}</span>
+            </button>
+            <button
               onClick={exportToCSV}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-zinc-300 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-md transition-colors"
             >
@@ -284,6 +322,34 @@ export const InventoryBrowser: React.FC<InventoryBrowserProps> = ({
             </button>
           </div>
         </div>
+
+        {/* Embedded Fast Part Stock Customizer Drawer */}
+        {isStockEditorOpen && onUpdateItems && onAddToast && (
+          <div className="mt-4 p-4 rounded-xl bg-zinc-900/90 border border-indigo-500/40 shadow-xl animate-fade-in space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-zinc-800">
+              <div className="flex items-center gap-2">
+                <Sliders className="w-4 h-4 text-indigo-400" />
+                <span className="font-bold text-white text-sm">
+                  Quick Stock Adjuster — Add or Subtract Parts (+ / -)
+                </span>
+              </div>
+              <button
+                onClick={() => setIsStockEditorOpen(false)}
+                className="text-xs text-zinc-400 hover:text-white px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700"
+              >
+                Close Adjuster
+              </button>
+            </div>
+            <PartStockCustomizer
+              items={items}
+              onUpdateItems={onUpdateItems}
+              clubProfile={clubProfile || { schoolName: 'Robotics Team', clubNumber: 'VEX', shortName: 'Robotics', teams: CLUB_TEAMS as any }}
+              customPartKinds={customPartKinds}
+              onUpdateCustomPartKinds={onUpdateCustomPartKinds || (() => {})}
+              onAddToast={onAddToast}
+            />
+          </div>
+        )}
 
         {/* Category Segmented Filter Tabs */}
         <div className="flex items-center gap-1 mt-4 overflow-x-auto pb-1 scrollbar-none">
