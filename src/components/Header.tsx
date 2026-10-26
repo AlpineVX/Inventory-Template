@@ -69,12 +69,16 @@ export const Header: React.FC<HeaderProps> = ({
                   <School className="w-4 h-4 text-indigo-400" />
                 )}
               </div>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 flex-wrap">
                 <span className="text-sm font-semibold tracking-tight text-zinc-100 group-hover:text-white transition-colors truncate max-w-[150px] sm:max-w-xs">
                   {clubProfile.shortName || 'VEX Inventory'}
                 </span>
                 <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-zinc-400">
                   {clubProfile.clubNumber || 'VEX'}
+                </span>
+                <span className="hidden xl:inline-flex items-center gap-1 text-[10px] font-medium text-zinc-300 bg-zinc-900/90 border border-zinc-800/80 px-2 py-0.5 rounded-full" title="Created by Trishanth Yakkala">
+                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+                  <span>By Trishanth Yakkala</span>
                 </span>
               </div>
             </a>

@@ -307,7 +307,7 @@ export const SchoolCustomizerModal: React.FC<SchoolCustomizerModalProps> = ({
                 <span>Make It Your Own — School &amp; Team Setup</span>
               </h2>
               <p className="text-[11px] text-zinc-400">
-                Easily adapt this website for any school, robotics team, or club
+                Easily adapt this website for any school, robotics team, or club · Created by <span className="text-zinc-200 font-medium">Trishanth Yakkala</span>
               </p>
             </div>
           </div>
@@ -827,6 +827,12 @@ export const SchoolCustomizerModal: React.FC<SchoolCustomizerModalProps> = ({
               </div>
             </div>
           )}
+        </div>
+
+        {/* Modal Bottom Bar */}
+        <div className="px-5 py-2.5 bg-zinc-950/80 border-t border-zinc-800/80 flex items-center justify-between text-[11px] text-zinc-500">
+          <span>VEX Robotics Inventory System</span>
+          <span>Created by <strong className="text-zinc-300 font-medium">Trishanth Yakkala</strong></span>
         </div>
       </div>
     </div>

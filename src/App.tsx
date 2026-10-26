@@ -849,6 +849,10 @@ export default function App() {
             <span className="font-mono text-zinc-400">
               Teams: {clubProfile.teams.join(', ')}
             </span>
+            <span>·</span>
+            <span className="text-zinc-400">
+              Created by <span className="font-semibold text-zinc-200">Trishanth Yakkala</span>
+            </span>
           </div>
           <div className="flex items-center gap-3 text-zinc-400 shrink-0 flex-wrap justify-center">
             <button

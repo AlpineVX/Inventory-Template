@@ -75,15 +75,20 @@ export const InstructionManual: React.FC<InstructionManualProps> = ({
       {/* Top Banner */}
       <div className="p-6 rounded-2xl bg-gradient-to-r from-indigo-950/60 via-zinc-900 to-zinc-950 border border-indigo-500/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
         <div className="space-y-1.5">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 text-xs font-mono font-medium">
-            <BookOpen className="w-3.5 h-3.5" />
-            <span>Official VEX Inventory Manual</span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 text-xs font-mono font-medium">
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>Official VEX Inventory Manual</span>
+            </div>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 text-xs font-medium">
+              <span>Created by Trishanth Yakkala</span>
+            </div>
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
             Complete Beginner-Proof Instruction Manual
           </h1>
           <p className="text-xs text-zinc-300 max-w-2xl leading-relaxed">
-            Everything any robotics team, student, coach, or teacher needs to clone, customize, and operate this inventory system with zero technical hurdles.
+            Everything any robotics team, student, coach, or teacher needs to clone, customize, and operate this inventory system with zero technical hurdles. Developed by <strong className="text-white font-medium">Trishanth Yakkala</strong>.
           </p>
         </div>
 
@@ -209,6 +214,24 @@ export const InstructionManual: React.FC<InstructionManualProps> = ({
                       <span>View &amp; Download My QR Code</span>
                     </button>
                   </div>
+                </div>
+
+                {/* Creator Attribution Box */}
+                <div className="p-4 rounded-xl bg-gradient-to-r from-zinc-950 via-zinc-900 to-zinc-950 border border-zinc-800 flex items-center justify-between flex-wrap gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold text-xs">
+                      TY
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold text-white">System Architect &amp; Developer</div>
+                      <div className="text-xs text-zinc-400">
+                        Designed &amp; built by <span className="text-zinc-200 font-medium">Trishanth Yakkala</span> for VEX Robotics teams and coaches.
+                      </div>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-400">
+                    Trishanth Yakkala
+                  </span>
                 </div>
               </div>
             </div>

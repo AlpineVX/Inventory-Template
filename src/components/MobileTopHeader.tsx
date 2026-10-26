@@ -68,6 +68,9 @@ export const MobileTopHeader: React.FC<MobileTopHeaderProps> = ({
               {clubProfile.clubNumber || 'VEX'}
             </span>
           </h1>
+          <p className="text-[10px] text-zinc-400 truncate leading-none mt-0.5">
+            By Trishanth Yakkala
+          </p>
         </div>
       </div>
 
