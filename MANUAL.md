@@ -4,7 +4,7 @@ Welcome to the **VEX Robotics Inventory Control System**. This web application i
 
 ---
 
-## ⚡ 60-Second Quick Start
+##  60-Second Quick Start
 
 If you want your robotics team up and running in under a minute:
 
@@ -18,7 +18,7 @@ If you want your robotics team up and running in under a minute:
 
 ---
 
-## 🚀 How Any Team Can Make Their Own Copy
+##  How Any Team Can Make Their Own Copy
 
 Want a private copy hosted 24/7 with your own link? Choose any of these 3 free methods:
 
@@ -40,7 +40,7 @@ Want a private copy hosted 24/7 with your own link? Choose any of these 3 free m
 
 ---
 
-## 🎨 Customizing for Your School
+##  Customizing for Your School
 
 Click **"Customize / Clone"** in the top bar to adjust:
 - **Full School / Club Name**: Displays in header wordmarks, reports, and audit logs.
@@ -52,7 +52,7 @@ Click **"Customize / Clone"** in the top bar to adjust:
 
 ---
 
-## 📦 Daily Student & Builder Checkout Guide
+##  Daily Student & Builder Checkout Guide
 
 ### Checking OUT a Component
 1. Click **"+ Check Out"** in the top bar (or center `+` icon on phone).
@@ -80,7 +80,7 @@ Click **"Customize / Clone"** in the top bar to adjust:
 
 ---
 
-## 🏷️ Setting Up the Cabinet QR Code
+##  Setting Up the Cabinet QR Code
 
 1. Click **"Logos & QR Badges"** in the header or bottom bar.
 2. The website automatically generates a real, scannable QR code matching your active web address with your school name printed directly on it.
@@ -91,7 +91,7 @@ Click **"Customize / Clone"** in the top bar to adjust:
 
 ---
 
-## 💾 Backups, Exporting, and Data Safety
+##  Backups, Exporting, and Data Safety
 
 - **Download Complete Backup (.json)**:
   - Go to **"Customize / Clone" > "Export & Import Setup"**.
@@ -106,7 +106,7 @@ Click **"Customize / Clone"** in the top bar to adjust:
 
 ---
 
-## 📊 Connecting a Google Sheet (Optional)
+##  Connecting a Google Sheet (Optional)
 
 You do **NOT** need Google Sheets. But if your school district or mentor requires cloud spreadsheet sync:
 1. Open a Google Sheet.
@@ -118,7 +118,7 @@ You do **NOT** need Google Sheets. But if your school district or mentor require
 
 ---
 
-## ❓ FAQ & Troubleshooting
+##  FAQ & Troubleshooting
 
 - **Q: What is the default Admin PIN?**  
   **A:** `654`. You can change it anytime in the **Customize / Clone** modal.
